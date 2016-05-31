@@ -1,0 +1,24 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb",
+
+  "rules": {
+    "strict":               2,
+    "no-console":           0,
+    "no-unused-vars":       2,
+    "object-curly-spacing": 0,
+
+    "key-spacing": [1, {
+      "align": "value",
+      "beforeColon": false,
+      "afterColon": true
+    }],
+
+    "no-multi-spaces": [2,
+      "exceptions": {
+        "VariableDeclarator": true,
+        "ImportDeclaration":  true
+      }
+    ]
+  }
+}

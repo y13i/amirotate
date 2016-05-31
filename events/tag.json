@@ -1,0 +1,8 @@
+{
+  "describeInstancesParams": {},
+  "tagKey": "amirotatejs",
+  "opts": {
+    "retention_period": 175000,
+    "no_reboot": true
+  }
+}

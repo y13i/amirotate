@@ -1,0 +1,6 @@
+{
+  "describeInstancesParams": {},
+  "describeImagesParams": {
+    "Owners": ["self"]
+  }
+}

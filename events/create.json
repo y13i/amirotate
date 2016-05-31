@@ -1,0 +1,18 @@
+{
+  "describeInstancesParams": {
+    "Filters": [
+      {
+        "Name": "instance-state-name",
+        "Values": [
+          "running",
+          "stopping",
+          "stopped"
+        ]
+      },
+      {
+        "Name": "tag-key",
+        "Values": ["amirotatejs"]
+      }
+    ]
+  }
+}

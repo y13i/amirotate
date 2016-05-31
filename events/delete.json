@@ -1,0 +1,11 @@
+{
+  "describeImagesParams": {
+    "Owners": ["self"],
+    "Filters": [
+      {
+        "Name": "tag-key",
+        "Values": ["amirotatejs"]
+      }
+    ]
+  }
+}
