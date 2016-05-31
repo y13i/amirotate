@@ -102,6 +102,8 @@ $ npm run create
 
 Go to CloudWatch Management Console and set scheduled event source to invoke `amirotatejs_create` and `amirotatejs_delete`.
 
+Event input should be constant JSON. Copy and paste `events/create.json` and `events/delete.json`.
+
 Like this.
 
 ![AWS Management Console](docs/CloudWatch_Management_Console.png)
