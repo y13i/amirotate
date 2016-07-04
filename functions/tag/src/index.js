@@ -3,18 +3,17 @@ import AWS    from 'aws-sdk';
 
 import 'babel-polyfill';
 
-const ec2 = new AWS.EC2();
-
-const getInstances = async params => (
-  await ec2.describeInstances(params).promise()
-).Reservations.reduce(
-  (acc, reservation) => acc.concat(reservation.Instances), []
-);
-
 export default lambda(async (evt, ctx) => {
   console.log(`${ctx.functionName} has been invoked.`);
 
-  const instances = await getInstances(evt.describeInstancesParams);
+  const region = evt.region || process.env.AWS_REGION;
+  const ec2    = new AWS.EC2({region});
+
+  const instances = (
+    await ec2.describeInstances(evt.describeInstancesParams).promise()
+  ).Reservations.reduce(
+    (acc, reservation) => acc.concat(reservation.Instances), []
+  );
 
   await ec2.createTags({
     Resources: instances.map(i => i.InstanceId),
