@@ -3,14 +3,13 @@ import AWS    from 'aws-sdk';
 
 import 'babel-polyfill';
 
-const ec2       = new AWS.EC2();
-const getImages = async params => (await ec2.describeImages(params).promise()).Images;
-
 export default lambda(async (evt, ctx) => {
   console.log(`${ctx.functionName} has been invoked.`);
 
-  const images = await getImages(evt.describeImagesParams);
   const time   = Math.floor(Date.now() / 1000);
+  const region = evt.region || process.env.AWS_REGION;
+  const ec2    = new AWS.EC2({region});
+  const images = (await ec2.describeImages(evt.describeImagesParams).promise()).Images;
 
   const imagesToDelete = images.filter(image => {
     const rotateOpts = JSON.parse(image.Tags.find(tag =>
