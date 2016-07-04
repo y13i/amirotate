@@ -15,7 +15,7 @@ export default lambda(async (evt, ctx) => {
     (acc, reservation) => acc.concat(reservation.Instances), []
   );
 
-  await ec2.createTags({
+  const createTagsResults = await ec2.createTags({
     Resources: instances.map(i => i.InstanceId),
 
     Tags: [
@@ -26,5 +26,5 @@ export default lambda(async (evt, ctx) => {
     ],
   }).promise();
 
-  return;
+  return {createTagsResults};
 });
