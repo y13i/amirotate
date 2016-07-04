@@ -30,10 +30,12 @@ export default lambda(async (evt, ctx) => {
     }).promise();
   }));
 
-  await Promise.all(createImageResults.map((createImageResult, index) => ec2.createTags({
-    Resources: [createImageResult.ImageId],
-    Tags:      instances[index].Tags.filter(tag => !tag.Key.match(/^aws:/)),
-  }).promise()));
+  const createTagsResults = await Promise.all(
+    createImageResults.map((createImageResult, index) => ec2.createTags({
+      Resources: [createImageResult.ImageId],
+      Tags:      instances[index].Tags.filter(tag => !tag.Key.match(/^aws:/)),
+    }).promise())
+  );
 
-  return createImageResults;
+  return {createImageResults, createTagsResults};
 });
