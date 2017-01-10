@@ -1,4 +1,5 @@
 node_modules
-functions/*/lib
 .DS_Store
 *.log
+.serverless
+.built

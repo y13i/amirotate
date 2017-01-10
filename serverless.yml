@@ -1,0 +1,31 @@
+service: amirotate
+provider:
+  name: aws
+  runtime: nodejs4.3
+  region: ${env:AWS_REGION}
+  memorySize: 256
+  environment:
+    tagKey: amirotate
+  iamRoleStatements:
+  - Effect: Allow
+    Action:
+    - ec2:CreateImage
+    - ec2:CreateTags
+    - ec2:DeleteSnapshot
+    - ec2:DeregisterImage
+    - ec2:DescribeImages
+    - ec2:DescribeInstances
+    - ec2:DescribeSnapshots
+    - ec2:DescribeTags
+    Resource: "*"
+plugins:
+- serverless-webpack
+functions:
+  create:
+    handler: create.default
+    events:
+    - schedule: cron(0 0 ? * * *)
+  delete:
+    handler: delete.default
+    events:
+    - schedule: cron(0 0 ? * * *)
