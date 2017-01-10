@@ -27,7 +27,7 @@ $ npm run deploy
 
 By default, the functions will be scheduled to be invoked daily.
 
-If you want to change the schedule, edit `cron(0 0 ? * * *)` in `serverless.yml`.
+If you want to change the schedule, edit `cron(0 0 ? * * *)` in `serverless.yml`. See [Serverless Framework - AWS Lambda Events - Scheduled & Recurring](https://serverless.com/framework/docs/providers/aws/events/schedule/).
 
 ### Tag instances
 
@@ -68,6 +68,12 @@ $ npm run create
 $ npm run delete
 ```
 
+### Remove functions
+
+```sh
+$ npm run remove
+```
+
 ## See also
 
 - [Serverless - The Serverless Application Framework powered by AWS Lambda and API Gateway](https://serverless.com/)
@@ -75,5 +81,5 @@ $ npm run delete
 ## History
 
 - v1 - **amirotate** written in Ruby. Moved to [y13i/amirotate-rb](https://github.com/y13i/amirotate-rb)
-- v2 - **amirotatejs** written in JavaScript with Apex. Moved to [y13i/amirotate](https://github.com/y13i/amirotate/tree/apex-final)
+- v2 - **amirotatejs** written in JavaScript with Apex. Moved to [branch: apex-final](https://github.com/y13i/amirotate/tree/apex-final)
 - v3 - current.
