@@ -2,6 +2,10 @@ service: amirotate
 provider:
   name: aws
   runtime: nodejs4.3
+  region: ${env:AWS_REGION}
+  memorySize: 256
+  environment:
+    tagKey: amirotate
   iamRoleStatements:
   - Effect: Allow
     Action:
@@ -19,5 +23,9 @@ plugins:
 functions:
   create:
     handler: create.default
+    events:
+    - schedule: cron(0 0 ? * * *)
   delete:
     handler: delete.default
+    events:
+    - schedule: cron(0 0 ? * * *)
