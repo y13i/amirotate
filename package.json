@@ -5,7 +5,8 @@
   "scripts": {
     "deploy": "serverless deploy",
     "create": "serverless invoke --function create",
-    "delete": "serverless invoke --function delete"
+    "delete": "serverless invoke --function delete",
+    "remove": "serverless remove"
   },
   "repository": {
     "type": "git",
