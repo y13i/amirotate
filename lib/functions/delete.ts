@@ -77,9 +77,8 @@ export default lambda(async () => {
   });
 
   for (let instanceId in imagesGroupByInstanceId) {
-    imagesGroupByInstanceId[instanceId].sort((a, b) => {
-      return getImageTimestamp(b) - getImageTimestamp(a);
-    }
+    imagesGroupByInstanceId[instanceId].sort((a, b) =>
+      getImageTimestamp(b) - getImageTimestamp(a)
     );
   }
 
