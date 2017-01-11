@@ -1,5 +1,7 @@
 # amirotate
 
+[日本語](README.ja.md)
+
 Lambda functions to backup and rotate images of EC2 instance.
 
 ## Usage
