@@ -4,6 +4,16 @@ Lambda functions to backup and rotate images of EC2 instance.
 
 ## Usage
 
+### Set AWS credentials and region
+
+Set environment variable `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_REGION`.
+
+[direnv](https://github.com/direnv/direnv) is very useful for this.
+
+Instead of setting `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, you can write your credentials on `~/.aws/credentials` (and set `AWS_PROFILE` if it's not `[default]`).
+
+- [Configuring the AWS Command Line Interface - AWS Command Line Interface](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)
+
 ### Deploy Lambda Functions
 
 Clone repo.
@@ -25,7 +35,7 @@ Deploy.
 $ npm run deploy
 ```
 
-By default, the functions will be scheduled to be invoked daily.
+By default, the functions will be scheduled to be invoked daily at 0:00 UTC.
 
 If you want to change the schedule, edit `cron(0 0 ? * * *)` in `serverless.yml`. See [Serverless Framework - AWS Lambda Events - Scheduled & Recurring](https://serverless.com/framework/docs/providers/aws/events/schedule/).
 
@@ -56,7 +66,7 @@ JSON string represents the option of amirotate for the instance. The structure i
 {"NoReboot": true, "Retention": {"Count": 3}}
 ```
 
-If you want to change the key of the tag, simply edit `provider.environment.tagKey` in `serverless.yml`.
+If you want to change the key of the tag from `amirotate`, simply edit `provider.environment.tagKey` in `serverless.yml`.
 
 ### Invoke functions manually
 
