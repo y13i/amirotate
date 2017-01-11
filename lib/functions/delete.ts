@@ -131,7 +131,7 @@ export default lambda(async () => {
     return {
       imageId:   imageDeletionPlan.image.ImageId!,
       reason:    imageDeletionPlan.reason,
-      snapshots: snapshotIds.map(snapshotId => ({snapshotId: snapshotId})),
+      snapshots: snapshotIds.map(snapshotId => ({snapshotId})),
     };
   }));
 
