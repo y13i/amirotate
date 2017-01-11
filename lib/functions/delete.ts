@@ -89,13 +89,20 @@ export default lambda(async () => {
     const imageTimestamp = getImageTimestamp(image);
     const instanceId     = getImageInstanceId(image);
 
-    if (option.Retention.Period && (imageTimestamp + option.Retention.Period) < Date.now()) {
+    if (typeof option.Retention === 'undefined') {
+      return;
+    }
+
+    if (
+      typeof option.Retention.Period === 'number' &&
+      (imageTimestamp + option.Retention.Period) < Date.now()
+    ) {
       imageDeletionPlans.push({
         image:  image,
         reason: `Retention period expired (${new Date(imageTimestamp)}).`,
       });
     } else if (
-      option.Retention.Count &&
+      typeof option.Retention.Count === 'number' &&
       imagesGroupByInstanceId[instanceId].length > option.Retention.Count &&
       imagesGroupByInstanceId[instanceId].indexOf(image) >= option.Retention.Count
     ) {
