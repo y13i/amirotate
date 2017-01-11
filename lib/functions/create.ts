@@ -16,7 +16,7 @@ export default lambda(async () => {
 
   const instances = await (async () => {
     let instances = new Array<AWS.EC2.Instance>();
-    let nextToken: string | undefined = undefined;
+    let nextToken: string | undefined;
 
     do {
       const describeInstancesResult: AWS.EC2.DescribeInstancesResult = await ec2.describeInstances({
