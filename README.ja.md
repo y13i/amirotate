@@ -2,6 +2,11 @@
 
 AMI (Amazon Machine Image) による EC2 インスタンスのバックアップと世代管理を行う Lambda Function 群です。
 
+## 前提条件
+
+- [Node.js](https://nodejs.org/)
+- [Yarn](https://yarnpkg.com/)
+
 ## 使い方
 
 ### AWS 認証情報とリージョンをセットする
@@ -26,13 +31,13 @@ $ git clone https://github.com/y13i/amirotate.git
 
 ```sh
 $ cd amirotate
-$ npm install
+$ yarn
 ```
 
 デプロイします。
 
 ```sh
-$ npm run deploy
+$ yarn run deploy
 ```
 
 デフォルトでは、0:00 UTCに毎日実行されるようにスケジューリングされます。
@@ -71,17 +76,17 @@ JSON 文字列は各インスタンスごとの設定を表します。その構
 ### function を手動実行する
 
 ```sh
-$ npm run create
+$ yarn run create
 ```
 
 ```sh
-$ npm run delete
+$ yarn run delete
 ```
 
 ### function を削除する
 
 ```sh
-$ npm run remove
+$ yarn run remove
 ```
 
 ## 参考

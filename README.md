@@ -4,6 +4,11 @@
 
 Lambda functions to backup and rotate images of EC2 instance.
 
+## Prerequisite
+
+- [Node.js](https://nodejs.org/)
+- [Yarn](https://yarnpkg.com/)
+
 ## Usage
 
 ### Set AWS credentials and region
@@ -28,13 +33,13 @@ Install dependencies.
 
 ```sh
 $ cd amirotate
-$ npm install
+$ yarn
 ```
 
 Deploy.
 
 ```sh
-$ npm run deploy
+$ yarn run deploy
 ```
 
 By default, the functions will be scheduled to be invoked daily at 0:00 UTC.
@@ -73,17 +78,17 @@ If you want to change the key of the tag from `amirotate`, simply edit `provider
 ### Invoke functions manually
 
 ```sh
-$ npm run create
+$ yarn run create
 ```
 
 ```sh
-$ npm run delete
+$ yarn run delete
 ```
 
 ### Remove functions
 
 ```sh
-$ npm run remove
+$ yarn run remove
 ```
 
 ## See also
