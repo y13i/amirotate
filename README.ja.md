@@ -40,7 +40,7 @@ $ yarn
 $ yarn run deploy
 ```
 
-デフォルトでは、0:00 UTCに毎日実行されるようにスケジューリングされます。
+デフォルトでは `create` は 0:00 UTC 、 `delete` は 1:00 UTC に毎日実行されるようにスケジューリングされます。
 
 もし変更したい場合は、 `serverless.yml` の `cron(0 0 ? * * *)` の部分を [Serverless Framework - AWS Lambda Events - Scheduled & Recurring](https://serverless.com/framework/docs/providers/aws/events/schedule/) を参考に変更してください。
 
@@ -65,7 +65,7 @@ JSON 文字列は各インスタンスごとの設定を表します。その構
 }
 ```
 
-**Value は 正しい JSON でなくてはいけません。**. 以下は例 (No reboot, 3つのイメージを残す):
+**Value は 正しい JSON でなくてはいけません。** 以下は例 (No reboot, 3つのイメージを残す)
 
 ```json
 {"NoReboot": true, "Retention": {"Count": 3}}

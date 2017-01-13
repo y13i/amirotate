@@ -28,4 +28,4 @@ functions:
   delete:
     handler: delete.default
     events:
-    - schedule: cron(0 0 ? * * *)
+    - schedule: cron(0 1 ? * * *)

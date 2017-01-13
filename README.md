@@ -42,7 +42,7 @@ Deploy.
 $ yarn run deploy
 ```
 
-By default, the functions will be scheduled to be invoked daily at 0:00 UTC.
+By default, the functions will be scheduled to be invoked daily at 0:00 UTC (`create`) and 1:00 UTC (`delete`).
 
 If you want to change the schedule, edit `cron(0 0 ? * * *)` in `serverless.yml`. See [Serverless Framework - AWS Lambda Events - Scheduled & Recurring](https://serverless.com/framework/docs/providers/aws/events/schedule/).
 
