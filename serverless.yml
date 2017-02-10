@@ -24,8 +24,12 @@ functions:
   create:
     handler: create.default
     events:
-    - schedule: cron(0 0 ? * * *)
+    - schedule:
+        rate: cron(0 0 ? * * *)
+        # input:
+        #   tagKey: amirotate # You can override tag key here
   delete:
     handler: delete.default
     events:
-    - schedule: cron(0 1 ? * * *)
+    - schedule:
+        rate: cron(0 1 ? * * *)

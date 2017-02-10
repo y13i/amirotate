@@ -11,8 +11,10 @@ interface CreateResult {
   tags:       AWS.EC2.Tag[];
 }
 
-export default lambda(async () => {
+export default lambda(async (event: any) => {
   const ec2 = new AWS.EC2();
+
+  const tagKey = event.tagKey || process.env.tagKey;
 
   const instances = await (async () => {
     let instances = new Array<AWS.EC2.Instance>();
@@ -35,7 +37,7 @@ export default lambda(async () => {
 
           {
             Name:   'tag-key',
-            Values: [process.env.tagKey],
+            Values: [tagKey],
           },
         ]
       }).promise();
@@ -52,7 +54,7 @@ export default lambda(async () => {
 
   const results: CreateResult[] = await Promise.all(instances.map(async (instance) => {
     const instanceId = instance.InstanceId!;
-    const option     = AMIRotate.parseOption(instance, process.env.tagKey)!;
+    const option     = AMIRotate.parseOption(instance, tagKey)!;
     const tags       = instance.Tags!.filter(tag => !tag.Key!.match(/^aws:/));
 
     const createImageResult = await ec2.createImage({

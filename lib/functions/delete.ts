@@ -19,8 +19,10 @@ interface ImageDeletionPlan {
   reason: string;
 }
 
-export default lambda(async () => {
+export default lambda(async (event: any) => {
   const ec2 = new AWS.EC2();
+
+  const tagKey = event.tagKey || process.env.tagKey;
 
   const getImageInstanceId: (image: AWS.EC2.Image) => string = image => {
     try {
@@ -59,7 +61,7 @@ export default lambda(async () => {
 
       {
         Name:   'tag-key',
-        Values: [process.env.tagKey],
+        Values: [tagKey],
       }
     ],
   }).promise()).Images!;
@@ -85,7 +87,7 @@ export default lambda(async () => {
   let imageDeletionPlans = new Array<ImageDeletionPlan>();
 
   images.forEach(image => {
-    const option         = AMIRotate.parseOption(image, process.env.tagKey)!;
+    const option         = AMIRotate.parseOption(image, tagKey)!;
     const imageTimestamp = getImageTimestamp(image);
     const instanceId     = getImageInstanceId(image);
 
