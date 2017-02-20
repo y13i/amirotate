@@ -7,6 +7,7 @@ provider:
   memorySize: 256
   environment:
     tagKey: amirotate
+    sleepBeforeEach: 100
   iamRoleStatements:
   - Effect: Allow
     Action:
@@ -34,3 +35,5 @@ functions:
     events:
     - schedule:
         rate: cron(0 1 ? * * *)
+    environment:
+      sleepBeforeDeleteSnapshots: 500

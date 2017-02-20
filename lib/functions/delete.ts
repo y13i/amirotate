@@ -42,14 +42,6 @@ export default lambda(async (event: any) => {
     }
   };
 
-  const sleep: (msec: number, val?: any) => Promise<number> = (msec, val) => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(val);
-      }, msec);
-    });
-  };
-
   const images = (await ec2.describeImages({
     Owners: ['self'],
 
@@ -120,11 +112,20 @@ export default lambda(async (event: any) => {
     }
   });
 
-  const results: DeleteResult[] = await Promise.all(imageDeletionPlans.map(async imageDeletionPlan => {
-    await ec2.deregisterImage({ImageId: imageDeletionPlan.image.ImageId!}).promise();
-    await sleep(500);
-
+  const results: DeleteResult[] = await Promise.all(imageDeletionPlans.map(async (imageDeletionPlan, index) => {
     const snapshotIds = imageDeletionPlan.image.BlockDeviceMappings!.filter(bd => bd.Ebs)!.map(bd => bd.Ebs!.SnapshotId!);
+
+    if (process.env.sleepBeforeEach) {
+      const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
+      if (ms > 0) await AMIRotate.sleep(ms);
+    }
+
+    await ec2.deregisterImage({ImageId: imageDeletionPlan.image.ImageId!}).promise();
+
+    if (process.env.sleepBeforeDeleteSnapshots) {
+      const ms = parseInt(process.env.sleepBeforeDeleteSnapshots, 10);
+      if (ms > 0) await AMIRotate.sleep(ms);
+    }
 
     await Promise.all(snapshotIds.map(snapshotId =>
       ec2.deleteSnapshot({SnapshotId: snapshotId}).promise()

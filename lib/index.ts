@@ -8,6 +8,10 @@ export function parseOption(item: AWS.EC2.Instance | AWS.EC2.Image, tagKey: stri
   }
 }
 
+export function sleep(msec: number, val?: any): Promise<any> {
+  return new Promise(resolve => setTimeout(() => resolve(val), msec));
+};
+
 export interface Option {
   NoReboot:  boolean;
   Retention: Option.Retention;

@@ -52,10 +52,15 @@ export default lambda(async (event: any) => {
     return instances;
   })();
 
-  const results: CreateResult[] = await Promise.all(instances.map(async (instance) => {
+  const results: CreateResult[] = await Promise.all(instances.map(async (instance, index) => {
     const instanceId = instance.InstanceId!;
     const option     = AMIRotate.parseOption(instance, tagKey)!;
     const tags       = instance.Tags!.filter(tag => !tag.Key!.match(/^aws:/));
+
+    if (process.env.sleepBeforeEach) {
+      const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
+      if (ms > 0) await AMIRotate.sleep(ms);
+    }
 
     const createImageResult = await ec2.createImage({
       InstanceId: instanceId,
