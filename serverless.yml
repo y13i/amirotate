@@ -3,6 +3,7 @@ provider:
   name: aws
   runtime: nodejs4.3
   region: ${env:AWS_REGION}
+  timeout: 300
   memorySize: 256
   environment:
     tagKey: amirotate
