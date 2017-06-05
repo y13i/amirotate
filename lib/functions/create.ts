@@ -1,27 +1,27 @@
-import * as lambda           from 'apex.js';
-import * as AWS              from 'aws-sdk';
-import * as SourceMapSupport from 'source-map-support';
-import * as AMIRotate        from '..';
+import 'source-map-support/register';
 
-SourceMapSupport.install();
+import * as λ from '@y13i/apex.js';
+import {EC2} from 'aws-sdk';
+
+import {parseOption, sleep} from '..';
 
 interface CreateResult {
   instanceId: string;
   imageId:    string;
-  tags:       AWS.EC2.Tag[];
+  tags:       EC2.Tag[];
 }
 
-export default lambda(async (event: any) => {
-  const ec2 = new AWS.EC2();
+export default λ(async (event: any) => {
+  const ec2 = new EC2();
 
   const tagKey = event.tagKey || process.env.tagKey;
 
   const instances = await (async () => {
-    let instances = new Array<AWS.EC2.Instance>();
+    let instances = new Array<EC2.Instance>();
     let nextToken: string | undefined;
 
     do {
-      const describeInstancesResult: AWS.EC2.DescribeInstancesResult = await ec2.describeInstances({
+      const describeInstancesResult: EC2.DescribeInstancesResult = await ec2.describeInstances({
         NextToken: nextToken,
 
         Filters: [
@@ -54,12 +54,12 @@ export default lambda(async (event: any) => {
 
   const results: CreateResult[] = await Promise.all(instances.map(async (instance, index) => {
     const instanceId = instance.InstanceId!;
-    const option     = AMIRotate.parseOption(instance, tagKey)!;
+    const option     = parseOption(instance, tagKey)!;
     const tags       = instance.Tags!.filter(tag => !tag.Key!.match(/^aws:/));
 
     if (process.env.sleepBeforeEach) {
       const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
-      if (ms > 0) await AMIRotate.sleep(ms);
+      if (ms > 0) await sleep(ms);
     }
 
     const createImageResult = await ec2.createImage({

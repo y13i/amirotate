@@ -1,9 +1,8 @@
-import * as lambda           from 'apex.js';
-import * as AWS              from 'aws-sdk';
-import * as SourceMapSupport from 'source-map-support';
-import * as AMIRotate        from '..';
+import 'source-map-support/register';
 
-SourceMapSupport.install();
+import * as λ from '@y13i/apex.js';
+import {EC2} from 'aws-sdk';
+import {parseOption, sleep} from '..';
 
 interface DeleteResult {
   imageId: string;
@@ -15,16 +14,16 @@ interface DeleteResult {
 }
 
 interface ImageDeletionPlan {
-  image:  AWS.EC2.Image;
+  image:  EC2.Image;
   reason: string;
 }
 
-export default lambda(async (event: any) => {
-  const ec2 = new AWS.EC2();
+export default λ(async (event: any) => {
+  const ec2 = new EC2();
 
   const tagKey = event.tagKey || process.env.tagKey;
 
-  const getImageInstanceId: (image: AWS.EC2.Image) => string = image => {
+  const getImageInstanceId: (image: EC2.Image) => string = image => {
     try {
       return image.Name!.match(/^i-[0-9a-f]+/)![0];
     } catch (e) {
@@ -33,7 +32,7 @@ export default lambda(async (event: any) => {
     }
   };
 
-  const getImageTimestamp: (image: AWS.EC2.Image) => number = image => {
+  const getImageTimestamp: (image: EC2.Image) => number = image => {
     try {
       return parseInt(image.Name!.match(/\d+$/)![0], 10);
     } catch (e) {
@@ -58,13 +57,13 @@ export default lambda(async (event: any) => {
     ],
   }).promise()).Images!;
 
-  let imagesGroupByInstanceId: {[instanceId: string]: AWS.EC2.Image[]} = {};
+  let imagesGroupByInstanceId: {[instanceId: string]: EC2.Image[]} = {};
 
   images.forEach(image => {
     const instanceId = getImageInstanceId(image);
 
     if (!imagesGroupByInstanceId[instanceId]) {
-      imagesGroupByInstanceId[instanceId] = new Array<AWS.EC2.Image>();
+      imagesGroupByInstanceId[instanceId] = new Array<EC2.Image>();
     }
 
     imagesGroupByInstanceId[instanceId].push(image);
@@ -79,7 +78,7 @@ export default lambda(async (event: any) => {
   let imageDeletionPlans = new Array<ImageDeletionPlan>();
 
   images.forEach(image => {
-    const option         = AMIRotate.parseOption(image, tagKey)!;
+    const option         = parseOption(image, tagKey)!;
     const imageTimestamp = getImageTimestamp(image);
     const instanceId     = getImageInstanceId(image);
 
@@ -117,14 +116,14 @@ export default lambda(async (event: any) => {
 
     if (process.env.sleepBeforeEach) {
       const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
-      if (ms > 0) await AMIRotate.sleep(ms);
+      if (ms > 0) await sleep(ms);
     }
 
     await ec2.deregisterImage({ImageId: imageDeletionPlan.image.ImageId!}).promise();
 
     if (process.env.sleepBeforeDeleteSnapshots) {
       const ms = parseInt(process.env.sleepBeforeDeleteSnapshots, 10);
-      if (ms > 0) await AMIRotate.sleep(ms);
+      if (ms > 0) await sleep(ms);
     }
 
     await Promise.all(snapshotIds.map(snapshotId =>

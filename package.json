@@ -23,10 +23,9 @@
   },
   "homepage": "https://github.com/y13i/amirotate",
   "devDependencies": {
-    "@types/apex.js": "^2.0.1",
     "@types/aws-sdk": "^2.7.0",
     "@types/source-map-support": "^0.4.0",
-    "apex.js": "^2.0.0",
+    "@y13i/apex.js": "^2.0.1",
     "aws-sdk": "^2.62.0",
     "json-loader": "^0.5.4",
     "serverless": "^1.14.0",
