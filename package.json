@@ -28,6 +28,7 @@
     "@y13i/apex.js": "^2.0.1",
     "aws-sdk": "^2.62.0",
     "json-loader": "^0.5.4",
+    "retryx": "^0.0.5",
     "serverless": "^1.14.0",
     "serverless-webpack": "^1.0.0-rc.3",
     "source-map-support": "^0.4.15",

@@ -1,6 +1,7 @@
 import 'source-map-support/register';
 
 import * as λ from '@y13i/apex.js';
+import retryx from 'retryx';
 import {EC2} from 'aws-sdk';
 
 import {parseOption, sleep} from '..';
@@ -21,7 +22,7 @@ export default λ(async (event: any) => {
     let nextToken: string | undefined;
 
     do {
-      const describeInstancesResult: EC2.DescribeInstancesResult = await ec2.describeInstances({
+      const describeInstancesResult = await retryx(() => ec2.describeInstances({
         NextToken: nextToken,
 
         Filters: [
@@ -40,7 +41,7 @@ export default λ(async (event: any) => {
             Values: [tagKey],
           },
         ]
-      }).promise();
+      }).promise());
 
       describeInstancesResult.Reservations!.forEach(
         reservation => instances.push(...reservation.Instances!)
@@ -52,6 +53,8 @@ export default λ(async (event: any) => {
     return instances;
   })();
 
+  console.log(JSON.stringify({instances}));
+
   const results: CreateResult[] = await Promise.all(instances.map(async (instance, index) => {
     const instanceId = instance.InstanceId!;
     const option     = parseOption(instance, tagKey)!;
@@ -62,18 +65,18 @@ export default λ(async (event: any) => {
       if (ms > 0) await sleep(ms);
     }
 
-    const createImageResult = await ec2.createImage({
+    const createImageResult = await retryx(() => ec2.createImage({
       InstanceId: instanceId,
       Name:       `${instanceId}_${Date.now()}`,
       NoReboot:   option.NoReboot,
-    }).promise();
+    }).promise());
 
     const imageId = createImageResult.ImageId!;
 
-    await ec2.createTags({
+    await retryx(() => ec2.createTags({
       Resources: [imageId],
       Tags:      tags,
-    }).promise();
+    }).promise());
 
     return {
       instanceId,
@@ -82,7 +85,7 @@ export default λ(async (event: any) => {
     };
   }));
 
-  console.log(JSON.stringify(results));
+  console.log(JSON.stringify({results}));
 
   return results;
 });

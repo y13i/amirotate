@@ -1,6 +1,7 @@
 import 'source-map-support/register';
 
 import * as λ from '@y13i/apex.js';
+import retryx from 'retryx';
 import {EC2} from 'aws-sdk';
 import {parseOption, sleep} from '..';
 
@@ -41,7 +42,7 @@ export default λ(async (event: any) => {
     }
   };
 
-  const images = (await ec2.describeImages({
+  const describeImagesResult = await retryx(() => ec2.describeImages({
     Owners: ['self'],
 
     Filters: [
@@ -55,7 +56,11 @@ export default λ(async (event: any) => {
         Values: [tagKey],
       }
     ],
-  }).promise()).Images!;
+  }).promise());
+
+  const images = describeImagesResult.Images!;
+
+  console.log(JSON.stringify({images}));
 
   let imagesGroupByInstanceId: {[instanceId: string]: EC2.Image[]} = {};
 
@@ -74,6 +79,8 @@ export default λ(async (event: any) => {
       getImageTimestamp(b) - getImageTimestamp(a)
     );
   }
+
+  console.log(JSON.stringify({imagesGroupByInstanceId}));
 
   let imageDeletionPlans = new Array<ImageDeletionPlan>();
 
@@ -111,6 +118,8 @@ export default λ(async (event: any) => {
     }
   });
 
+  console.log(JSON.stringify({imageDeletionPlans}));
+
   const results: DeleteResult[] = await Promise.all(imageDeletionPlans.map(async (imageDeletionPlan, index) => {
     const snapshotIds = imageDeletionPlan.image.BlockDeviceMappings!.filter(bd => bd.Ebs)!.map(bd => bd.Ebs!.SnapshotId!);
 
@@ -119,7 +128,7 @@ export default λ(async (event: any) => {
       if (ms > 0) await sleep(ms);
     }
 
-    await ec2.deregisterImage({ImageId: imageDeletionPlan.image.ImageId!}).promise();
+    await retryx(() => ec2.deregisterImage({ImageId: imageDeletionPlan.image.ImageId!}).promise());
 
     if (process.env.sleepBeforeDeleteSnapshots) {
       const ms = parseInt(process.env.sleepBeforeDeleteSnapshots, 10);
@@ -127,7 +136,7 @@ export default λ(async (event: any) => {
     }
 
     await Promise.all(snapshotIds.map(snapshotId =>
-      ec2.deleteSnapshot({SnapshotId: snapshotId}).promise()
+      retryx(() => ec2.deleteSnapshot({SnapshotId: snapshotId}).promise())
     ));
 
     return {
@@ -137,7 +146,7 @@ export default λ(async (event: any) => {
     };
   }));
 
-  console.log(JSON.stringify(results));
+  console.log(JSON.stringify({results}));
 
   return results;
 });
