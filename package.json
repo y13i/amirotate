@@ -1,6 +1,6 @@
 {
   "name": "amirotate",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Rotate images of EC2 instance.",
   "scripts": {
     "serverless": "serverless",
