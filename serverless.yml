@@ -22,6 +22,8 @@ provider:
     Resource: "*"
 plugins:
 - serverless-webpack
+custom:
+  webpackIncludeModules: true
 functions:
   create:
     handler: create.default
