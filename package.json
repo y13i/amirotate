@@ -29,7 +29,6 @@
   "devDependencies": {
     "@types/source-map-support": "^0.4.0",
     "awesome-typescript-loader": "^3.4.0",
-    "retryx": "^0.0.6",
     "serverless": "^1.24.1",
     "serverless-webpack": "^4.1.0",
     "tslint": "^5.8.0",
@@ -40,6 +39,7 @@
   "dependencies": {
     "aws-sdk": "^2.157.0",
     "dalamb": "^0.2.0",
+    "retryx": "^0.0.6",
     "source-map-support": "^0.5.0"
   }
 }
