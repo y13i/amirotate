@@ -14,7 +14,11 @@
     "url": "git+ssh://git@github.com/y13i/amirotate.git"
   },
   "keywords": [
-    "lambda"
+    "lambda",
+    "ec2",
+    "image",
+    "snapshot",
+    "backup"
   ],
   "author": "Yoriki Yamaguchi <email@y13i.com>",
   "license": "MIT",
