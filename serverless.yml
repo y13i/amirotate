@@ -6,7 +6,7 @@ provider:
   timeout: 300
   memorySize: 256
   environment:
-    tagKey: amirotate
+    tagKey: amirotate:default
     sleepBeforeEach: 100
   iamRoleStatements:
   - Effect: Allow
@@ -31,7 +31,7 @@ functions:
     - schedule:
         rate: cron(0 0 ? * * *)
         # input:
-        #   tagKey: amirotate # You can override tag key here
+        #   tagKey: amirotate:daily # You can override tag key here
   delete:
     handler: delete.default
     events:
