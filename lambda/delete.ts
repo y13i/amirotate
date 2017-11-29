@@ -7,7 +7,9 @@ import {EC2} from 'aws-sdk';
 import {getOption, sleep} from '../lib/utils';
 import {AMIRotateEvent, DeleteResult, ImageDeletionPlan, InstanceIdImagesMap} from '../lib/types';
 
-export default dalamb<AMIRotateEvent>(async (event: any) => {
+export default dalamb<AMIRotateEvent>(async event => {
+  console.log(JSON.stringify({event}));
+
   const ec2 = new EC2();
 
   const tagKey: string = event.tagKey || process.env.tagKey || 'amirotate:default';

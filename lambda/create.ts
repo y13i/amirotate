@@ -8,6 +8,8 @@ import {getOption, sleep} from '../lib/utils';
 import {AMIRotateEvent, CreateResult} from '../lib/types';
 
 export default dalamb<AMIRotateEvent>(async event => {
+  console.log(JSON.stringify({event}));
+
   const ec2 = new EC2();
 
   const tagKey: string = event.tagKey || process.env.tagKey || 'amirotate:default';
