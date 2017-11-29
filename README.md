@@ -7,7 +7,6 @@ Lambda functions to backup and rotate images of EC2 instance.
 ## Prerequisite
 
 - [Node.js](https://nodejs.org/)
-- [Yarn](https://yarnpkg.com/)
 
 ## Usage
 
@@ -33,13 +32,18 @@ Install dependencies.
 
 ```sh
 $ cd amirotate
+
 $ yarn
+# or
+$ npm install
 ```
 
 Deploy.
 
 ```sh
 $ yarn run deploy
+# or
+$ npm run deploy
 ```
 
 By default, the functions will be scheduled to be invoked daily at 0:00 UTC (`create`) and 1:00 UTC (`delete`).
@@ -50,9 +54,9 @@ If you want to change the schedule, edit `cron(0 0 ? * * *)` in `serverless.yml`
 
 Create a tag for the EC2 instances you want to backup like below.
 
-| Key       | Value         |
-|-----------|---------------|
-| amirotate | (JSON string) |
+| Key               | Value         |
+|-------------------|---------------|
+| amirotate:default | (JSON string) |
 
 JSON string represents the option of amirotate for the instance. The structure is...
 
@@ -73,22 +77,60 @@ JSON string represents the option of amirotate for the instance. The structure i
 {"NoReboot": true, "Retention": {"Count": 3}}
 ```
 
-If you want to change the key of the tag from `amirotate`, simply edit `provider.environment.tagKey` in `serverless.yml`.
+If you want to change the key of the tag from `amirotate:default`, simply edit `provider.environment.tagKey` in format of `amirotate:<your alternate name here>` in `serverless.yml`.
+
+#### Configuring multiple cycles of backup
+
+You can set multiple cycles by settting multiple `schedule` on `functions.<create|delete>.events` in `serverless.yml`. In that case, you must override `tagKey` value also.
+
+For example...
+
+```yaml
+functions:
+  create:
+    handler: lambda/create.default
+    events:
+    - schedule:
+        rate: cron(0 0 ? * * *)
+        input:
+          tagKey: amirotate:daily
+    - schedule:
+        rate: cron(0 1 ? * SUN *)
+        input:
+          tagKey: amirotate:weekly
+  delete:
+    handler: lambda/delete.default
+    events:
+    - schedule:
+        rate: cron(0 2 ? * * *)
+        input:
+          tagKey: amirotate:daily
+    - schedule:
+        rate: cron(0 3 ? * SUN *)
+        input:
+          tagKey: amirotate:weekly
+```
 
 ### Invoke functions manually
 
 ```sh
 $ yarn run create
+# or
+$ npm run create
 ```
 
 ```sh
 $ yarn run delete
+# or
+$ npm run delete
 ```
 
 ### Remove functions
 
 ```sh
 $ yarn run remove
+# or
+$ npm run remove
 ```
 
 ## See also

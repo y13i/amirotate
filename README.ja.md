@@ -5,7 +5,6 @@ AMI (Amazon Machine Image) による EC2 インスタンスのバックアップ
 ## 前提条件
 
 - [Node.js](https://nodejs.org/)
-- [Yarn](https://yarnpkg.com/)
 
 ## 使い方
 
@@ -31,13 +30,18 @@ $ git clone https://github.com/y13i/amirotate.git
 
 ```sh
 $ cd amirotate
+
 $ yarn
+# or
+$ npm install
 ```
 
 デプロイします。
 
 ```sh
 $ yarn run deploy
+# or
+$ npm run deploy
 ```
 
 デフォルトでは `create` は 0:00 UTC 、 `delete` は 1:00 UTC に毎日実行されるようにスケジューリングされます。
@@ -48,11 +52,11 @@ $ yarn run deploy
 
 以下のように、バックアップ対象のインスタンスにタグを追加します。
 
-| Key       | Value         |
-|-----------|---------------|
-| amirotate | (JSON 文字列) |
+| Key               | Value         |
+|-------------------|---------------|
+| amirotate:default | (JSON 文字列) |
 
-JSON 文字列は各インスタンスごとの設定を表します。その構造は
+JSON 文字列は各インスタンスごとの設定を表します。その構造は以下の通りです。
 
 ```js
 {
@@ -71,22 +75,58 @@ JSON 文字列は各インスタンスごとの設定を表します。その構
 {"NoReboot": true, "Retention": {"Count": 3}}
 ```
 
-タグのキーを `amirotate` から変えたい場合、 `serverless.yml` の `provider.environment.tagKey` の値を変更してください。
+タグのキーを `amirotate:default` から変えたい場合、 `serverless.yml` の `provider.environment.tagKey` の値を `amirotate:<your alternate name here>` の形式で変更してください。
+
+#### 複数の周期バックアップを設定する場合
+
+`serverless.yml` の `functions.<create|delete>.events` に複数の `schedule` を設定することで可能です。その際は `tagKey` も異なる値を設定します。例えば
+
+```yaml
+functions:
+  create:
+    handler: lambda/create.default
+    events:
+    - schedule:
+        rate: cron(0 0 ? * * *)
+        input:
+          tagKey: amirotate:daily
+    - schedule:
+        rate: cron(0 1 ? * SUN *)
+        input:
+          tagKey: amirotate:weekly
+  delete:
+    handler: lambda/delete.default
+    events:
+    - schedule:
+        rate: cron(0 2 ? * * *)
+        input:
+          tagKey: amirotate:daily
+    - schedule:
+        rate: cron(0 3 ? * SUN *)
+        input:
+          tagKey: amirotate:weekly
+```
 
 ### function を手動実行する
 
 ```sh
 $ yarn run create
+# or
+$ npm run create
 ```
 
 ```sh
 $ yarn run delete
+# or
+$ npm run delete
 ```
 
 ### function を削除する
 
 ```sh
 $ yarn run remove
+# or
+$ npm run remove
 ```
 
 ## 参考
