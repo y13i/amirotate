@@ -1,47 +1,55 @@
 import 'source-map-support/register';
 
-import * as λ from '@y13i/apex.js';
+import dalamb from 'dalamb';
 import retryx from 'retryx';
 import {EC2} from 'aws-sdk';
-import {parseOption, sleep} from '..';
 
-interface DeleteResult {
-  imageId: string;
-  reason:  string;
+import {getOption, sleep} from '../lib/utils';
+import {AMIRotateEvent, DeleteResult, ImageDeletionPlan, InstanceIdImagesMap} from '../lib/types';
 
-  snapshots: {
-    snapshotId: string;
-  }[];
-}
-
-interface ImageDeletionPlan {
-  image:  EC2.Image;
-  reason: string;
-}
-
-export default λ(async (event: any) => {
+export default dalamb<AMIRotateEvent>(async (event: any) => {
   const ec2 = new EC2();
 
-  const tagKey = event.tagKey || process.env.tagKey;
+  const tagKey: string = event.tagKey || process.env.tagKey || 'amirotate:default';
 
-  const getImageInstanceId: (image: EC2.Image) => string = image => {
-    try {
-      return image.Name!.match(/^i-[0-9a-f]+/)![0];
-    } catch (e) {
-      console.log(`${e.name}: Cannot parse instance ID from ${image}. ${e.message}`);
-      throw e;
-    }
-  };
+  const images = await getImages(ec2, tagKey);
 
-  const getImageTimestamp: (image: EC2.Image) => number = image => {
-    try {
-      return parseInt(image.Name!.match(/\d+$/)![0], 10);
-    } catch (e) {
-      console.log(`${e.name}: Cannot parse time from ${image}. ${e.message}`);
-      throw e;
-    }
-  };
+  console.log(JSON.stringify({images}));
 
+  const instanceIdImagesMap = groupImagesByInstanceId(...images);
+
+  console.log(JSON.stringify({instanceIdImagesMap}));
+
+  const imageDeletionPlans = getImageDeletionPlans(instanceIdImagesMap, tagKey);
+
+  console.log(JSON.stringify({imageDeletionPlans}));
+
+  const deleteResults = await deleteImages(ec2, ...imageDeletionPlans);
+
+  console.log(JSON.stringify({deleteResults}));
+
+  return deleteResults;
+});
+
+function getImageInstanceId(image: EC2.Image): string {
+  try {
+    return image.Name!.match(/^i-[0-9a-f]+/)![0];
+  } catch (e) {
+    console.log(`${e.name}: Cannot parse instance ID from ${image}. ${e.message}`);
+    throw e;
+  }
+}
+
+function getImageTimestamp(image: EC2.Image): number {
+  try {
+    return parseInt(image.Name!.match(/\d+$/)![0], 10);
+  } catch (e) {
+    console.log(`${e.name}: Cannot parse time from ${image}. ${e.message}`);
+    throw e;
+  }
+}
+
+async function getImages(ec2: EC2, tagKey: string): Promise<EC2.Image[]> {
   const describeImagesResult = await retryx(() => ec2.describeImages({
     Owners: ['self'],
 
@@ -58,69 +66,75 @@ export default λ(async (event: any) => {
     ],
   }).promise());
 
-  const images = describeImagesResult.Images!;
+  return describeImagesResult.Images!;
+}
 
-  console.log(JSON.stringify({images}));
-
-  let imagesGroupByInstanceId: {[instanceId: string]: EC2.Image[]} = {};
+function groupImagesByInstanceId(...images: EC2.Image[]): InstanceIdImagesMap {
+  const result: InstanceIdImagesMap = {};
 
   images.forEach(image => {
     const instanceId = getImageInstanceId(image);
 
-    if (!imagesGroupByInstanceId[instanceId]) {
-      imagesGroupByInstanceId[instanceId] = new Array<EC2.Image>();
+    if (!result[instanceId]) {
+      result[instanceId] = [];
     }
 
-    imagesGroupByInstanceId[instanceId].push(image);
+    result[instanceId].push(image);
   });
 
-  for (let instanceId in imagesGroupByInstanceId) {
-    imagesGroupByInstanceId[instanceId].sort((a, b) =>
-      getImageTimestamp(b) - getImageTimestamp(a)
-    );
+  for (let instanceId in result) {
+    // newest first.
+    result[instanceId].sort((a, b) => getImageTimestamp(b) - getImageTimestamp(a));
   }
 
-  console.log(JSON.stringify({imagesGroupByInstanceId}));
+  return result;
+}
 
-  let imageDeletionPlans = new Array<ImageDeletionPlan>();
+function getImageDeletionPlans(instanceIdImagesMap: InstanceIdImagesMap, tagKey: string): ImageDeletionPlan[] {
+  const result: ImageDeletionPlan[] = [];
 
-  images.forEach(image => {
-    const option         = parseOption(image, tagKey)!;
-    const imageTimestamp = getImageTimestamp(image);
-    const instanceId     = getImageInstanceId(image);
+  Object.keys(instanceIdImagesMap).forEach(instanceId => {
+    const images = instanceIdImagesMap[instanceId];
 
-    if (typeof option.Retention === 'undefined') {
-      return;
-    }
+    images.forEach(image => {
+      const option         = getOption(image, tagKey)!;
+      const imageTimestamp = getImageTimestamp(image);
 
-    if (
-      typeof option.Retention.Period === 'number' &&
-      (imageTimestamp + option.Retention.Period) < Date.now()
-    ) {
-      imageDeletionPlans.push({
-        image:  image,
-        reason: `Retention period expired (${new Date(imageTimestamp)}).`,
-      });
-    } else if (
-      typeof option.Retention.Count === 'number' &&
-      imagesGroupByInstanceId[instanceId].length > option.Retention.Count &&
-      imagesGroupByInstanceId[instanceId].indexOf(image) >= option.Retention.Count
-    ) {
-      imageDeletionPlans.push({
-        image: image,
+      if (!option.Retention) {
+        return;
+      }
 
-        reason: (
-          `Retention count exceeded (retaining last ${option.Retention.Count} images` +
-          ` created from \`${instanceId}\`, ${imagesGroupByInstanceId[instanceId].indexOf(image) + 1}` +
-          ` out of a total of ${imagesGroupByInstanceId[instanceId].length}).`
-        ),
-      });
-    }
+      if (
+        typeof option.Retention.Period === 'number' &&
+        (imageTimestamp + option.Retention.Period) < Date.now()
+      ) {
+        result.push({
+          image:  image,
+          reason: `Retention period expired (${new Date(imageTimestamp)}).`,
+        });
+      } else if (
+        typeof option.Retention.Count === 'number' &&
+        images.length > option.Retention.Count &&
+        images.indexOf(image) >= option.Retention.Count
+      ) {
+        result.push({
+          image: image,
+
+          reason: (
+            `Retention count exceeded (retaining last ${option.Retention.Count} images` +
+            ` created from \`${instanceId}\`, ${images.indexOf(image) + 1}` +
+            ` out of a total of ${images.length}).`
+          ),
+        });
+      }
+    });
   });
 
-  console.log(JSON.stringify({imageDeletionPlans}));
+  return result;
+}
 
-  const results: DeleteResult[] = await Promise.all(imageDeletionPlans.map(async (imageDeletionPlan, index) => {
+async function deleteImages(ec2: EC2, ...imageDeletionPlans: ImageDeletionPlan[]): Promise<DeleteResult[]> {
+  return await Promise.all(imageDeletionPlans.map(async (imageDeletionPlan, index) => {
     const snapshotIds = imageDeletionPlan.image.BlockDeviceMappings!.filter(bd => bd.Ebs)!.map(bd => bd.Ebs!.SnapshotId!);
 
     if (process.env.sleepBeforeEach) {
@@ -145,8 +159,4 @@ export default λ(async (event: any) => {
       snapshots: snapshotIds.map(snapshotId => ({snapshotId})),
     };
   }));
-
-  console.log(JSON.stringify({results}));
-
-  return results;
-});
+}
