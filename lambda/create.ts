@@ -1,24 +1,70 @@
 import 'source-map-support/register';
 
-import * as λ from '@y13i/apex.js';
+import dalamb from 'dalamb';
 import retryx from 'retryx';
 import {EC2} from 'aws-sdk';
 
-import {parseOption, sleep} from '..';
+import {getOption, sleep} from '../lib/utils';
+import {AMIRotateEvent, CreateResult} from '../lib/types';
 
-interface CreateResult {
-  instanceId: string;
-  imageId:    string;
-  tags:       EC2.Tag[];
-}
-
-export default λ(async (event: any) => {
+export default dalamb<AMIRotateEvent>(async event => {
   const ec2 = new EC2();
 
-  const tagKey = event.tagKey || process.env.tagKey;
+  const tagKey: string = event.tagKey || process.env.tagKey || 'amirotate:default';
 
-  const instances = await (async () => {
-    let instances = new Array<EC2.Instance>();
+  const instances = await getInstances(ec2, tagKey);
+
+  console.log(JSON.stringify({instances}));
+
+  const results: CreateResult[] = await Promise.all(instances.map(async (instance, index) => {
+    const instanceId = instance.InstanceId!;
+    const option     = getOption(instance, tagKey)!;
+
+    const tags = instance.Tags!.filter(tag => {
+      if (tag.Key!.startsWith('aws:')) {
+        return false;
+      }
+
+      if (tag.Key! !== tagKey && tag.Key!.startsWith('amirotate:')) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (process.env.sleepBeforeEach) {
+      const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
+      if (ms > 0) await sleep(ms);
+    }
+
+    const createImageResult = await retryx(() => ec2.createImage({
+      InstanceId: instanceId,
+      Name:       `${instanceId}_${Date.now()}`,
+      NoReboot:   option.NoReboot,
+    }).promise());
+
+    const imageId = createImageResult.ImageId!;
+
+    await retryx(() => ec2.createTags({
+      Resources: [imageId],
+      Tags:      tags,
+    }).promise());
+
+    return {
+      instanceId,
+      imageId,
+      tags,
+    };
+  }));
+
+  console.log(JSON.stringify({results}));
+
+  return results;
+});
+
+async function getInstances(ec2: EC2, tagKey: string): Promise<EC2.Instance[]> {
+    const instances: EC2.Instance[] = [];
+
     let nextToken: string | undefined;
 
     do {
@@ -51,41 +97,4 @@ export default λ(async (event: any) => {
     } while (nextToken);
 
     return instances;
-  })();
-
-  console.log(JSON.stringify({instances}));
-
-  const results: CreateResult[] = await Promise.all(instances.map(async (instance, index) => {
-    const instanceId = instance.InstanceId!;
-    const option     = parseOption(instance, tagKey)!;
-    const tags       = instance.Tags!.filter(tag => !tag.Key!.match(/^aws:/));
-
-    if (process.env.sleepBeforeEach) {
-      const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
-      if (ms > 0) await sleep(ms);
-    }
-
-    const createImageResult = await retryx(() => ec2.createImage({
-      InstanceId: instanceId,
-      Name:       `${instanceId}_${Date.now()}`,
-      NoReboot:   option.NoReboot,
-    }).promise());
-
-    const imageId = createImageResult.ImageId!;
-
-    await retryx(() => ec2.createTags({
-      Resources: [imageId],
-      Tags:      tags,
-    }).promise());
-
-    return {
-      instanceId,
-      imageId,
-      tags,
-    };
-  }));
-
-  console.log(JSON.stringify({results}));
-
-  return results;
-});
+}
