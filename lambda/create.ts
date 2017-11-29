@@ -8,7 +8,7 @@ import {getOption, sleep} from '../lib/utils';
 import {AMIRotateEvent, CreateResult} from '../lib/types';
 
 export default dalamb<AMIRotateEvent>(async event => {
-  console.log(JSON.stringify({event}));
+  console.log(JSON.stringify({version: require('../package.json').version, event}));
 
   const ec2 = new EC2();
 
