@@ -121,6 +121,14 @@ $ yarn run delete
 $ npm run delete
 ```
 
+`tagKey` の値を手動実行時に切り替えたい場合は…
+
+```sh
+$ echo '{"tagKey": "amirotate:daily"}' | yarn run create
+# or
+$ echo '{"tagKey": "amirotate:daily"}' | npm run create
+```
+
 ### function を削除する
 
 ```sh

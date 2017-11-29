@@ -125,6 +125,14 @@ $ yarn run delete
 $ npm run delete
 ```
 
+If you want to override `tagKey` with manual invocation,
+
+```sh
+$ echo '{"tagKey": "amirotate:daily"}' | yarn run create
+# or
+$ echo '{"tagKey": "amirotate:daily"}' | npm run create
+```
+
 ### Remove functions
 
 ```sh
