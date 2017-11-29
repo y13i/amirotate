@@ -1,9 +1,9 @@
 {
+  "private": true,
   "name": "amirotate",
   "version": "0.1.7",
   "description": "Rotate images of EC2 instance.",
   "scripts": {
-    "serverless": "serverless",
     "deploy": "serverless deploy",
     "create": "serverless invoke --function create",
     "delete": "serverless invoke --function delete",
