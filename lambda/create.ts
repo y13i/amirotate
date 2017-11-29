@@ -26,40 +26,40 @@ export default dalamb<AMIRotateEvent>(async event => {
 });
 
 async function getInstances(ec2: EC2, tagKey: string): Promise<EC2.Instance[]> {
-    const instances: EC2.Instance[] = [];
+  const instances: EC2.Instance[] = [];
 
-    let nextToken: string | undefined;
+  let nextToken: string | undefined;
 
-    do {
-      const describeInstancesResult = await retryx(() => ec2.describeInstances({
-        NextToken: nextToken,
+  do {
+    const describeInstancesResult = await retryx(() => ec2.describeInstances({
+      NextToken: nextToken,
 
-        Filters: [
-          {
-            Name: 'instance-state-name',
+      Filters: [
+        {
+          Name: 'instance-state-name',
 
-            Values: [
-              'running',
-              'stopping',
-              'stopped',
-            ],
-          },
+          Values: [
+            'running',
+            'stopping',
+            'stopped',
+          ],
+        },
 
-          {
-            Name:   'tag-key',
-            Values: [tagKey],
-          },
-        ]
-      }).promise());
+        {
+          Name:   'tag-key',
+          Values: [tagKey],
+        },
+      ]
+    }).promise());
 
-      describeInstancesResult.Reservations!.forEach(
-        reservation => instances.push(...reservation.Instances!)
-      );
+    describeInstancesResult.Reservations!.forEach(
+      reservation => instances.push(...reservation.Instances!)
+    );
 
-      nextToken = describeInstancesResult.NextToken;
-    } while (nextToken);
+    nextToken = describeInstancesResult.NextToken;
+  } while (nextToken);
 
-    return instances;
+  return instances;
 }
 
 async function createImages(ec2: EC2, tagKey: string, ...instances: EC2.Instance[]): Promise<CreateResult[]> {
