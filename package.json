@@ -25,7 +25,6 @@
   "devDependencies": {
     "@types/source-map-support": "^0.4.0",
     "awesome-typescript-loader": "^3.4.0",
-    "json-loader": "^0.5.4",
     "retryx": "^0.0.6",
     "serverless": "^1.24.1",
     "serverless-webpack": "^4.1.0",
