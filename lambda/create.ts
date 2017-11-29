@@ -16,7 +16,52 @@ export default dalamb<AMIRotateEvent>(async event => {
 
   console.log(JSON.stringify({instances}));
 
-  const results: CreateResult[] = await Promise.all(instances.map(async (instance, index) => {
+  const createResults = await createImages(ec2, tagKey, ...instances);
+
+  console.log(JSON.stringify({createResults}));
+
+  return createResults;
+});
+
+async function getInstances(ec2: EC2, tagKey: string): Promise<EC2.Instance[]> {
+    const instances: EC2.Instance[] = [];
+
+    let nextToken: string | undefined;
+
+    do {
+      const describeInstancesResult = await retryx(() => ec2.describeInstances({
+        NextToken: nextToken,
+
+        Filters: [
+          {
+            Name: 'instance-state-name',
+
+            Values: [
+              'running',
+              'stopping',
+              'stopped',
+            ],
+          },
+
+          {
+            Name:   'tag-key',
+            Values: [tagKey],
+          },
+        ]
+      }).promise());
+
+      describeInstancesResult.Reservations!.forEach(
+        reservation => instances.push(...reservation.Instances!)
+      );
+
+      nextToken = describeInstancesResult.NextToken;
+    } while (nextToken);
+
+    return instances;
+}
+
+async function createImages(ec2: EC2, tagKey: string, ...instances: EC2.Instance[]): Promise<CreateResult[]> {
+  return await Promise.all(instances.map(async (instance, index) => {
     const instanceId = instance.InstanceId!;
     const option     = getOption(instance, tagKey)!;
 
@@ -56,45 +101,4 @@ export default dalamb<AMIRotateEvent>(async event => {
       tags,
     };
   }));
-
-  console.log(JSON.stringify({results}));
-
-  return results;
-});
-
-async function getInstances(ec2: EC2, tagKey: string): Promise<EC2.Instance[]> {
-    const instances: EC2.Instance[] = [];
-
-    let nextToken: string | undefined;
-
-    do {
-      const describeInstancesResult = await retryx(() => ec2.describeInstances({
-        NextToken: nextToken,
-
-        Filters: [
-          {
-            Name: 'instance-state-name',
-
-            Values: [
-              'running',
-              'stopping',
-              'stopped',
-            ],
-          },
-
-          {
-            Name:   'tag-key',
-            Values: [tagKey],
-          },
-        ]
-      }).promise());
-
-      describeInstancesResult.Reservations!.forEach(
-        reservation => instances.push(...reservation.Instances!)
-      );
-
-      nextToken = describeInstancesResult.NextToken;
-    } while (nextToken);
-
-    return instances;
 }
