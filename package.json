@@ -1,9 +1,9 @@
 {
+  "private": true,
   "name": "amirotate",
-  "version": "0.1.7",
+  "version": "0.3.0",
   "description": "Rotate images of EC2 instance.",
   "scripts": {
-    "serverless": "serverless",
     "deploy": "serverless deploy",
     "create": "serverless invoke --function create",
     "delete": "serverless invoke --function delete",
@@ -14,7 +14,11 @@
     "url": "git+ssh://git@github.com/y13i/amirotate.git"
   },
   "keywords": [
-    "lambda"
+    "lambda",
+    "ec2",
+    "image",
+    "snapshot",
+    "backup"
   ],
   "author": "Yoriki Yamaguchi <email@y13i.com>",
   "license": "MIT",
@@ -23,18 +27,19 @@
   },
   "homepage": "https://github.com/y13i/amirotate",
   "devDependencies": {
-    "@types/aws-sdk": "^2.7.0",
     "@types/source-map-support": "^0.4.0",
-    "@y13i/apex.js": "^2.0.1",
-    "aws-sdk": "^2.62.0",
-    "json-loader": "^0.5.4",
-    "retryx": "^0.0.5",
-    "serverless": "^1.14.0",
-    "serverless-webpack": "^1.0.0-rc.3",
-    "source-map-support": "^0.4.15",
-    "ts-loader": "^2.1.0",
-    "tslint": "^5.4.2",
-    "typescript": "^2.3.4",
-    "webpack": "^2.6.1"
+    "awesome-typescript-loader": "^3.4.0",
+    "serverless": "^1.24.1",
+    "serverless-webpack": "^4.1.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.2",
+    "webpack": "^3.8.1",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.157.0",
+    "dalamb": "^0.2.0",
+    "retryx": "^0.0.6",
+    "source-map-support": "^0.5.0"
   }
 }

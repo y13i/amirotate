@@ -1,7 +1,7 @@
-import * as AMIRotate from '.';
+import {Option} from './types';
 
 (() => {
-  const option1: AMIRotate.Option = {
+  const option1: Option = {
     NoReboot: true,
 
     Retention: {
@@ -9,7 +9,7 @@ import * as AMIRotate from '.';
     },
   };
 
-  const option2: AMIRotate.Option = {
+  const option2: Option = {
     NoReboot: true,
 
     Retention: {

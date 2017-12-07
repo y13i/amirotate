@@ -1,28 +1,19 @@
-var path    = require('path');
-var glob    = require('glob');
-var webpack = require('webpack');
+const path = require('path');
+const slsw = require('serverless-webpack');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-  entry: glob.sync('./lib/functions/*.ts').reduce(function(acc, item) {
-    var obj = {};
-    obj[path.basename(item, '.ts')] = item;
-    return Object.assign(acc, obj);
-  }, {}),
-
-  target:  'node',
-  devtool: 'source-map',
+  entry:     slsw.lib.entries,
+  target:    'node',
+  devtool:   'source-map',
+  externals: [nodeExternals()],
 
   module: {
-    loaders: [
+    rules: [
       {
         test:   /\.tsx?$/,
-        loader: 'ts-loader',
-      },
-
-      {
-        test:   /\.json$/,
-        loader: 'json-loader',
-      },
+        loader: 'awesome-typescript-loader',
+      }
     ],
   },
 
@@ -30,19 +21,12 @@ module.exports = {
     extensions: [
       '.ts',
       '.js',
-      '.tsx',
-      '.jsx',
-      '',
     ],
   },
 
-  // plugins: [
-  //   new webpack.optimize.UglifyJsPlugin(),
-  // ],
-
   output: {
     libraryTarget: 'commonjs',
-    path:          path.join(__dirname, '.built'),
+    path:          path.join(__dirname, 'dist', 'lambda'),
     filename:      '[name].js',
   },
 };
