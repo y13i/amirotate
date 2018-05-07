@@ -1,7 +1,7 @@
 service: amirotate
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   region: ${env:AWS_REGION}
   timeout: 300
   memorySize: 256
@@ -39,3 +39,13 @@ functions:
         rate: cron(0 1 ? * * *)
     environment:
       sleepBeforeDeleteSnapshots: "500"
+resources:
+  Resources:
+    CreateLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        RetentionInDays: "60"
+    DeleteLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        RetentionInDays: "60"
