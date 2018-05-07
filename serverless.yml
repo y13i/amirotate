@@ -39,3 +39,13 @@ functions:
         rate: cron(0 1 ? * * *)
     environment:
       sleepBeforeDeleteSnapshots: "500"
+resources:
+  Resources:
+    CreateLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        RetentionInDays: "60"
+    DeleteLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        RetentionInDays: "60"
