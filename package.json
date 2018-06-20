@@ -34,7 +34,7 @@
     "tslint": "5.10.0",
     "typescript": "2.6.2",
     "webpack": "3.8.1",
-    "webpack-node-externals": "1.6.0"
+    "webpack-node-externals": "1.7.2"
   },
   "dependencies": {
     "aws-sdk": "2.157.0",
