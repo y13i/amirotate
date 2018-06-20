@@ -39,7 +39,7 @@
   "dependencies": {
     "aws-sdk": "2.157.0",
     "dalamb": "0.2.0",
-    "retryx": "0.0.6",
+    "retryx": "0.0.7",
     "source-map-support": "0.5.0"
   }
 }
