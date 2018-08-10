@@ -40,6 +40,6 @@
     "aws-sdk": "2.290.0",
     "dalamb": "0.2.0",
     "retryx": "0.0.7",
-    "source-map-support": "0.5.6"
+    "source-map-support": "0.5.8"
   }
 }
