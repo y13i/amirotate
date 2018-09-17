@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/source-map-support": "0.4.1",
     "awesome-typescript-loader": "3.4.0",
-    "serverless": "1.24.1",
+    "serverless": "1.32.0",
     "serverless-webpack": "4.1.0",
     "tslint": "5.11.0",
     "typescript": "3.0.3",
