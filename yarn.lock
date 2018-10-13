@@ -460,10 +460,10 @@ awesome-typescript-loader@3.4.0:
     object-assign "^4.1.1"
     source-map-support "^0.4.15"
 
-aws-sdk@2.291.0:
-  version "2.291.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.291.0.tgz#e5ea6bc5dc1899902e4de2bf1d5fc886def3599e"
-  integrity sha512-al/oJuKN2mokw4nafloptGrmdzm4UZ8AeLuM2bFtPmb0nvwajOr/vSa/XhQTw+T07Vm9T8iJyWyqygq74E/YMQ==
+aws-sdk@2.334.0:
+  version "2.334.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.334.0.tgz#cf70be2f28f5350a882618a665c9703ad8a5e8c2"
+  integrity sha512-JiqtB2t/PklHCfo86HA6g6a8CXu5SDNa8XiaQ0rYyVBlzDR41p/s/yNlva3D1/QGiBTojl2fd9ZxBUxKa2Q9cg==
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
