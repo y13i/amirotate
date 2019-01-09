@@ -12,7 +12,7 @@ export default dalamb<AMIRotateEvent>(async event => {
 
   const ec2 = new EC2();
 
-  const tagKey: string = event.tagKey || process.env.tagKey || 'amirotate:default';
+  const tagKey: string = 'amirotate:default';
 
   const instances = await getInstances(ec2, tagKey);
 
@@ -79,8 +79,8 @@ async function createImages(ec2: EC2, tagKey: string, ...instances: EC2.Instance
       return true;
     });
 
-    if (process.env.sleepBeforeEach) {
-      const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
+    if (true) {
+      const ms = parseInt("100", 10) * index;
       if (ms > 0) await sleep(ms);
     }
 

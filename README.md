@@ -77,39 +77,11 @@ JSON string represents the option of amirotate for the instance. The structure i
 {"NoReboot": true, "Retention": {"Count": 3}}
 ```
 
-If you want to change the key of the tag from `amirotate:default`, simply edit `provider.environment.tagKey` in format of `amirotate:<your alternate name here>` in `serverless.yml`.
+If you want to change the key of the tag from `amirotate:default`, simply edit `tagKey` in format of `amirotate:<your alternate name here>` in `lambda/create.ts` and `lambda/delete.ts`.
 
 #### Configuring multiple cycles of backup
 
-You can set multiple cycles by settting multiple `schedule` on `functions.<create|delete>.events` in `serverless.yml`. In that case, you must override `tagKey` value also.
-
-For example...
-
-```yaml
-functions:
-  create:
-    handler: lambda/create.default
-    events:
-    - schedule:
-        rate: cron(0 0 ? * * *)
-        input:
-          tagKey: amirotate:daily
-    - schedule:
-        rate: cron(0 1 ? * SUN *)
-        input:
-          tagKey: amirotate:weekly
-  delete:
-    handler: lambda/delete.default
-    events:
-    - schedule:
-        rate: cron(0 2 ? * * *)
-        input:
-          tagKey: amirotate:daily
-    - schedule:
-        rate: cron(0 3 ? * SUN *)
-        input:
-          tagKey: amirotate:weekly
-```
+China region cannot set multiple cycles of backup.
 
 ### Invoke functions manually
 
@@ -123,14 +95,6 @@ $ npm run create
 $ yarn run delete
 # or
 $ npm run delete
-```
-
-If you want to override `tagKey` with manual invocation,
-
-```sh
-$ echo '{"tagKey": "amirotate:daily"}' | yarn run create
-# or
-$ echo '{"tagKey": "amirotate:daily"}' | npm run create
 ```
 
 ### Remove functions
