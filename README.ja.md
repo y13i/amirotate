@@ -75,37 +75,11 @@ JSON 文字列は各インスタンスごとの設定を表します。その構
 {"NoReboot": true, "Retention": {"Count": 3}}
 ```
 
-タグのキーを `amirotate:default` から変えたい場合、 `serverless.yml` の `provider.environment.tagKey` の値を `amirotate:<your alternate name here>` の形式で変更してください。
+タグのキーを `amirotate:default` から変えたい場合、 `lambda/create.ts` および `lambda/delete.ts` の `tagKey` の値を `amirotate:<your alternate name here>` の形式で変更してください。
 
 #### 複数の周期バックアップを設定する場合
 
-`serverless.yml` の `functions.<create|delete>.events` に複数の `schedule` を設定することで可能です。その際は `tagKey` も異なる値を設定します。例えば
-
-```yaml
-functions:
-  create:
-    handler: lambda/create.default
-    events:
-    - schedule:
-        rate: cron(0 0 ? * * *)
-        input:
-          tagKey: amirotate:daily
-    - schedule:
-        rate: cron(0 1 ? * SUN *)
-        input:
-          tagKey: amirotate:weekly
-  delete:
-    handler: lambda/delete.default
-    events:
-    - schedule:
-        rate: cron(0 2 ? * * *)
-        input:
-          tagKey: amirotate:daily
-    - schedule:
-        rate: cron(0 3 ? * SUN *)
-        input:
-          tagKey: amirotate:weekly
-```
+中国リージョンでは複数の周期バックアップを設定できません。
 
 ### function を手動実行する
 
@@ -119,14 +93,6 @@ $ npm run create
 $ yarn run delete
 # or
 $ npm run delete
-```
-
-`tagKey` の値を手動実行時に切り替えたい場合は…
-
-```sh
-$ echo '{"tagKey": "amirotate:daily"}' | yarn run create
-# or
-$ echo '{"tagKey": "amirotate:daily"}' | npm run create
 ```
 
 ### function を削除する

@@ -12,7 +12,7 @@ export default dalamb<AMIRotateEvent>(async event => {
 
   const ec2 = new EC2();
 
-  const tagKey: string = event.tagKey || process.env.tagKey || 'amirotate:default';
+  const tagKey: string = 'amirotate:default';
 
   const images = await getImages(ec2, tagKey);
 
@@ -139,15 +139,15 @@ async function deleteImages(ec2: EC2, ...imageDeletionPlans: ImageDeletionPlan[]
   return await Promise.all(imageDeletionPlans.map(async (imageDeletionPlan, index) => {
     const snapshotIds = imageDeletionPlan.image.BlockDeviceMappings!.filter(bd => bd.Ebs)!.map(bd => bd.Ebs!.SnapshotId!);
 
-    if (process.env.sleepBeforeEach) {
-      const ms = parseInt(process.env.sleepBeforeEach, 10) * index;
+    if (true) {
+      const ms = parseInt("100", 10) * index;
       if (ms > 0) await sleep(ms);
     }
 
     await retryx(() => ec2.deregisterImage({ImageId: imageDeletionPlan.image.ImageId!}).promise());
 
-    if (process.env.sleepBeforeDeleteSnapshots) {
-      const ms = parseInt(process.env.sleepBeforeDeleteSnapshots, 10);
+    if (true) {
+      const ms = parseInt("500", 10);
       if (ms > 0) await sleep(ms);
     }
 
