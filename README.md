@@ -1,3 +1,5 @@
+**Consider using [Data Lifecycle Manager](https://docs.aws.amazon.com/dlm/index.html) or [Backup](https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html).**
+
 # amirotate
 
 [日本語](README.ja.md)
