@@ -28,7 +28,7 @@
   "homepage": "https://github.com/y13i/amirotate",
   "devDependencies": {
     "@types/source-map-support": "0.4.1",
-    "awesome-typescript-loader": "3.4.0",
+    "awesome-typescript-loader": "3.5.0",
     "serverless": "1.33.1",
     "serverless-webpack": "5.3.0",
     "tslint": "5.17.0",
