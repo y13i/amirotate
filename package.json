@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/y13i/amirotate",
   "devDependencies": {
-    "@types/source-map-support": "0.4.1",
+    "@types/source-map-support": "0.5.3",
     "awesome-typescript-loader": "3.4.0",
     "serverless": "1.33.1",
     "serverless-webpack": "5.3.0",
@@ -40,6 +40,6 @@
     "aws-sdk": "2.335.0",
     "dalamb": "0.2.0",
     "retryx": "0.0.7",
-    "source-map-support": "0.5.8"
+    "source-map-support": "0.5.19"
   }
 }
