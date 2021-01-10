@@ -37,7 +37,7 @@
     "webpack-node-externals": "1.7.2"
   },
   "dependencies": {
-    "aws-sdk": "2.335.0",
+    "aws-sdk": "2.824.0",
     "dalamb": "0.2.0",
     "retryx": "0.0.7",
     "source-map-support": "0.5.8"
